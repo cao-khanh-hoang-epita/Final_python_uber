@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Uber</title>
+    <!-- Include Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" integrity="sha512-xodJVTUHUCVhK5qZg4uPl4IVb8g4AYwqJ17PBLH8HC2BZ2h2wnqfFCxFpg4y/j4tzqFy5u1t8z4i7xmBvBfXQg==" crossorigin=""/>
+    <!-- Include Leaflet Geocoder CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+
+    <!-- Include Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js" integrity="sha512-GffPMfPb+BlaBp9TBEUqTtB6SasYKwQ/YI3U2GchFOT6eG6FbdeTiCPQDJvdk5fT/gqYBr7z0W1MGje0zc3p2g==" crossorigin=""></script>
+    <!-- Include Leaflet Geocoder JavaScript -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- Include Leaflet Routing Machine JavaScript -->
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+
+    <!-- Include the Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css" />
+
+    <!-- Include Axios for making HTTP requests -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+<body>
+    <h1>Book an Uber</h1>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        <label for="time">Time:</label>
+        <input type="datetime-local" id="time" name="time" value="{{ form.time.default }}" required><br>
+        <label for="car_type">Car Type:</label>
+        <input type="text" id="car_type" name="car_type" value="{{ form.car_type.default }}" required><br>
+        
+        <!-- Add the destination search input -->
+        <label for="search-input">Destination:</label>
+        <input type="text" id="search-input" name="destination" placeholder="Search for your destination" required>
+        <button type="button" onclick="searchPlace()">Search</button>
+        <br>
+
+        <!-- Add a div for displaying the calculated distance -->
+        <div>Distance: <span id="distance">0.00</span> km</div>
+        
+        <input type="submit" value="Book Ride">
+    </form>
+
+    <script>
+        // Initialize Leaflet map and other variables
+        // ...
+
+        // Function to perform the search using the OpenCage Geocoding API
+        async function searchPlaceWithAPI() {
+            var searchText = document.getElementById('search-input').value;
+            if (searchText && userMarker) {
+                try {
+                    // Use Axios to make an HTTP request to the OpenCage Geocoding API
+                    const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
+                        params: {
+                            key: 'YOUR_OPENCAGE_API_KEY',  // Replace with your actual API key
+                            q: searchText,
+                            limit: 1,
+                            no_annotations: 1
+                        }
+                    });
+
+                    // Extract latitude and longitude from the API response
+                    const latlng = [
+                        response.data.results[0].geometry.lat,
+                        response.data.results[0].geometry.lng
+                    ];
+
+                    // Calculate distance and update the distance display without moving the map or changing the marker
+                    const initialLocation = L.latLng([userMarker.getLatLng().lat, userMarker.getLatLng().lng]);
+                    const distance = initialLocation.distanceTo(latlng) / 1000; // in kilometers
+                    document.getElementById('distance').innerText = distance.toFixed(2);
+                } catch (error) {
+                    console.error('Error fetching data from OpenCage API:', error);
+                }
+            }
+        }
+
+        // Add the searchPlace function
+        function searchPlace() {
+            // Call the searchPlaceWithAPI function
+            searchPlaceWithAPI();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <style>
+        /* Add your custom styles here */
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <div id="content">
+        <h1>Driver Map</h1>
+        <p>Welcome, {{ current_user.username }}!</p>
+        <button onclick="openUberForm()">Book an Uber</button>
+        <a href="{{ url_for('logout') }}">Logout</a>
+
+        <h2>Available Routes</h2>
+        <table border="1">
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Time</th>
+                <th>Car Type</th>
+                <th>Action</th>
+            </tr>
+            {% for route in available_routes %}
+            <tr>
+                <td>{{ route[0] }}</td>
+                <td>{{ route[1] }}</td>
+                <td>{{ route[3] }}</td>
+                <td>{{ route[4] }}</td>
+                <td>
+                    {% if route[5] == 0 %}
+                        <a href="{{ url_for('select_route', route_id=route[0]) }}">Select Route</a>
+                    {% else %}
+                        Accepted
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <!-- Include Leaflet and other scripts -->
+    <!-- Add your Leaflet map initialization script here -->
+
+    <script>
+        // Add your custom JavaScript here
+    </script>
+</body>
+</html>

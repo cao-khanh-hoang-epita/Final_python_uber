@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <!-- Include your CSS stylesheets or CDN links here -->
+    <link rel="stylesheet" href="your-styles.css">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="text-center">Chat Room {{ room_id }}</h2>
+                    </div>
+                    <div class="card-body chat-container">
+                        <div id="chat-history">
+                            {% for message in chat_history %}
+                                <p class="{{ 'text-right' if message.sender_id == current_user.id else '' }}">
+                                    {{ message.username }}: {{ message.content }} - {{ message.timestamp }}
+                                </p>
+                            {% endfor %}
+                        </div>
+
+                        {% if current_user.is_driver %}
+                            <!-- Link to Earnings Page for Drivers -->
+                            <p class="text-center">
+                                <a href="{{ url_for('earnings') }}">Go to Earnings Page</a>
+                            </p>
+                        {% elif not current_user.is_driver %}
+                            <!-- Link to Payment Page for Users with Invoice ID -->
+                            <p class="text-center">
+                                <a href="{{ url_for('payment', invoice_id=current_user.book_id) }}">Go to Payment Page</a>
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer">
+                        <form id="message-form" method="post" action="{{ url_for('chat', room_id=room_id) }}">
+                            {{ form.csrf_token }}
+                            <div class="input-group">
+                                {{ form.message_content.label(class="sr-only") }}
+                                {{ form.message_content(class="form-control") }}
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-primary">Send</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Ensure the chat history scrolls to the bottom
+        var chatHistory = document.getElementById('chat-history');
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+
+        // Optional: Auto-scroll to the bottom when a new message is received
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        socket.on('message_received', function (data) {
+            var newMessage = '<p class="' + (data.sender_id == current_user.id ? 'text-right' : '') + '">' +
+                data.username + ': ' + data.content + ' - ' + data.timestamp +
+                '</p>';
+            chatHistory.innerHTML += newMessage;
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        });
+    </script>
+</body>
+
+</html>

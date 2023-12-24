@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Earnings</title>
+    <!-- Add your CSS stylesheets or links here -->
+    <link rel="stylesheet" href="path/to/your/styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Earnings</h1>
+    </header>
+
+    <nav>
+        <!-- Add your navigation links if needed -->
+    </nav>
+
+    <main>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Invoice ID</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Payment Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for earnings in earnings_info %}
+                <tr>
+                    <td>{{ earnings.id }}</td>
+                    <td>${{ earnings.amount }}</td>
+                    <td>{{ earnings.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <footer>
+        <!-- Add your footer content if needed -->
+    </footer>
+
+    <!-- Add your JavaScript scripts or links here -->
+    <script src="path/to/your/script.js"></script>
+</body>
+
+</html>

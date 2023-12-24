@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Existing HTML Page</title>
+        <link rel="stylesheet" href="https://unpkg.com/leafet/dist/leafet.css"/>
+        <style>
+            #map {
+                height: 400px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <h1>My Existing Website</h1>
+        </div>
+
+    <div id="content">
+
+        <p>Welcome to your map site , {{ current_user.name }}</p>
+
+        <div id="map">
+            {{ map_content | safe }}
+        </div>
+    </div>
+
+    <div id="footer">
+        <p>&copy; 2023 My Website</p>
+    </div>
+</body>
+</html>

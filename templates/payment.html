@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment</title>
+</head>
+<body>
+
+  <h2>Payment</h2>
+  <form method="post">
+    {{ form.csrf_token }}
+    {{ form.amount.label }} {{ form.amount(size=32) }}
+    {{ form.submit() }}
+  </form>
+
+  <script>
+    // Automatically redirect to the map page after successful payment
+    setTimeout(function() {
+      window.location.href = '{{ url_for("show_map") }}';
+    }, 5000); // Adjust the delay (in milliseconds) as needed
+  </script>
+
+</body>
+</html>

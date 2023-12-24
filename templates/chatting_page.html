@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatting Page</title>
+    <!-- Include Socket.IO JavaScript library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #message-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        #message-input {
+            width: 70%;
+            padding: 8px;
+            margin-right: 5px;
+        }
+
+        #send-button {
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chatting Page</h1>
+
+    <div id="message-container"></div>
+
+    <div>
+        <input type="text" id="message-input" placeholder="Type your message">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+
+    {% if current_user.is_driver == 0 %}
+        <!-- Display the payment link only for users -->
+        <div id="payment-link">
+            <a href="{{ url_for('payment', invoice_id=ride_info.id) }}">Proceed to Payment</a>
+        </div>
+    {% endif %}
+
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // Function to load previous messages
+        function loadPreviousMessages() {
+            // Fetch previous messages from the server using an API endpoint or another method
+            // For now, let's assume you have a variable named 'previousMessages' with previous messages
+            var previousMessages = [{ sender_id: 'driver', message: 'Hello user!' }];
+
+            var messageContainer = document.getElementById('message-container');
+            previousMessages.forEach(function(data) {
+                var senderId = data.sender_id;
+                var message = data.message;
+
+                // Display the message in the message container
+                messageContainer.innerHTML += '<p>' + senderId + ': ' + message + '</p>';
+            });
+
+            // Scroll to the bottom of the message container
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        // Call the function to load previous messages when the page loads
+        window.onload = loadPreviousMessages;
+
+        // Function to send a message
+        function sendMessage() {
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value;
+            var senderId = '{{ current_user.id }}';  // Get the current user's ID
+
+            // Emit a socketio event to send the message
+            socket.emit('send_message', {ride_id: '{{ current_user.book_id }}', sender_id: senderId, message: message});
+
+            // Clear the input field
+            messageInput.value = '';
+
+            // Display the sent message in the message container immediately
+            var messageContainer = document.getElementById('message-container');
+            messageContainer.innerHTML += '<p>' + senderId + ': ' + message + '</p>';
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        }
+
+        // Socket.IO event to receive a message
+        socket.on('receive_message', function(data) {
+            var messageContainer = document.getElementById('message-container');
+            var senderId = data.sender_id;
+            var message = data.message;
+
+            // Display the received message in the message container
+            messageContainer.innerHTML += '<p>' + senderId + ': ' + message + '</p>';
+
+            // Scroll to the bottom of the message container
+            messageContainer.scrollTop = messageContainer.scrollHeight;
+        });
+    </script>
+</body>
+</html>

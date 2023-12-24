@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiting Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        h2 {
+            color: #555;
+        }
+
+        p {
+            color: #777;
+            margin: 5px 0;
+        }
+
+        .no-info {
+            color: #999;
+        }
+    </style>
+    <!-- Include SocketIO client library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
+</head>
+<body>
+    <h1>Waiting Page</h1>
+
+    {% if ride_info %}
+        <h2>Ride Information:</h2>
+        <p>Ride ID: {{ ride_info[0] }}</p>
+        <p>User ID: {{ ride_info[1] }}</p>
+        <p>Time: {{ ride_info[3] }}</p>
+        <p>Car Type: {{ ride_info[4] }}</p>
+        <p>Destination: {{ ride_info[5] }}</p>
+        <p>Accepted? 0 for no and 1 for Yes : {{ ride_info[6] }}</p>       
+        <script>
+            // Connect to the SocketIO server
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+            // Join the user room when the page loads
+            socket.emit('join_user_room', { 'user_id': ride_info[1] });
+            // Listen for the ride_accepted event
+            socket.on('ride_accepted', function(data) {
+                var rideId = data.ride_id;
+                // Redirect to the chatting page or perform other actions
+                window.location.href = '/chat/' + rideId;  // Replace with the actual route for chatting page
+            });
+        </script>
+    {% else %}
+        <p class="no-info">No ride information available</p>
+    {% endif %}
+</body>
+</html>

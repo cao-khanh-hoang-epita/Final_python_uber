@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Orders</title>
+    <!-- Add your styles or link to external stylesheets here -->
+    <style>
+        /* Add your custom styles here */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Driver Orders</h1>
+    <p>Welcome, {{ current_user.username }}!</p>
+
+    <h2>Available Ride Requests</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Ride ID</th>
+                <th>User ID</th>
+                <th>Time</th>
+                <th>Car Type</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ride_request in ride_requests %}
+            <tr>
+                <td>{{ ride_request[0] }}</td>
+                <td>{{ ride_request[1] }}</td>
+                <td>{{ ride_request[3] }}</td>
+                <td>{{ ride_request[4] }}</td>
+                <td>
+                    <a href="{{ url_for('accept_ride', ride_id=ride_request[0]) }}">Accept Ride</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('driver_map') }}">Back to Driver Map</a>
+    <a href="{{ url_for('earnings') }}">Go to Earnings Page</a>
+</body>
+</html>

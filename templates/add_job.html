@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Job</title>
+</head>
+<body>
+    <h1>Add Job</h1>
+    <form method="POST">
+        <label for="name">Job Name:</label>
+        <input type="text" name="name" required><br>
+
+        <label for="description">Description:</label>
+        <textarea name="description" required></textarea><br>
+
+        <label for="wage">Wage:</label>
+        <input type="number" name="wage" step="0.01" required><br>
+
+        <input type="submit" value="Add Job">
+    </form>
+</body>
+</html>

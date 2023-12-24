@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver Registration</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #212121;
+            color: #fff;
+            font-family: monospace, serif;
+            letter-spacing: 0.05em;
+        }
+
+        h2 {
+            font-size: 23px;
+        }
+
+        .form {
+            width: 300px;
+            padding: 64px 15px 24px;
+            margin: 0 auto;
+        }
+
+        .control {
+            margin: 0 0 24px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 0;
+            background: transparent;
+            color: #fff;
+            font-family: monospace, serif;
+            letter-spacing: 0.05em;
+            font-size: 16px;
+        }
+
+        input:hover,
+        input:focus {
+            outline: none;
+            border: 0;
+        }
+
+        .btn {
+            width: 100%;
+            display: block;
+            padding: 14px 16px;
+            background: transparent;
+            outline: none;
+            border: 0;
+            color: #fff;
+            letter-spacing: 0.1em;
+            font-weight: bold;
+            font-family: monospace;
+            font-size: 16px;
+        }
+
+        .block-cube {
+            position: relative;
+        }
+
+        .bg-top {
+            position: absolute;
+            height: 10px;
+            background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(52, 9, 121, 1) 37%, rgba(0, 212, 255, 1) 94%);
+            bottom: 100%;
+            left: 5px;
+            right: -5px;
+            transform: skew(-45deg, 0);
+            margin: 0;
+        }
+
+        .bg-inner {
+            bottom: 0;
+        }
+
+        .bg {
+            position: absolute;
+            left: 0;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(52, 9, 121, 1) 37%, rgba(0, 212, 255, 1) 94%);
+        }
+
+        .bg-right {
+            position: absolute;
+            background: rgba(0, 212, 255, 1);
+            top: -5px;
+            z-index: 0;
+            bottom: 5px;
+            width: 10px;
+            left: 100%;
+            transform: skew(0, -45deg);
+        }
+
+        .bg-inner {
+            left: 0;
+        }
+
+        .bg {
+            .bg-inner {
+                transition: all 0.2s ease-in-out;
+            }
+        }
+
+        .bg-inner {
+            background: #212121;
+            position: absolute;
+            left: 2px;
+            top: 2px;
+            right: 2px;
+            bottom: 2px;
+        }
+
+        .text {
+            position: relative;
+            z-index: 2;
+        }
+
+        .block-input input {
+            position: relative;
+            z-index: 2;
+        }
+
+        .block-input input:focus ~ .bg-right .bg-inner,
+        .block-input input:focus ~ .bg-top .bg-inner,
+        .block-input input:focus ~ .bg-inner .bg-inner {
+            top: 100%;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .block-input .bg-top,
+        .block-input .bg-right,
+        .block-input .bg {
+            background: rgba(255, 255, 255, 0.5);
+            transition: background 0.2s ease-in-out;
+        }
+
+        .block-input .bg-right,
+        .block-input .bg-top {
+            .bg-inner {
+                transition: all 0.2s ease-in-out;
+            }
+        }
+
+        .block-input input:focus,
+        .block-input input:hover {
+            .bg-top,
+            .bg-right,
+            .bg {
+                background: rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        .block-cube-hover:focus,
+        .block-cube-hover:hover {
+            .bg {
+                .bg-inner {
+                    top: 100%;
+                }
+            }
+        }
+
+        .credits {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            padding: 15px 15px;
+            width: 100%;
+            z-index: 111;
+        }
+
+        .credits a {
+            opacity: 0.6;
+            color: #fff;
+            font-size: 11px;
+            text-decoration: none;
+        }
+
+        .credits a:hover {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2>Driver Registration</h2>
+        <form method="POST" action="/register_driver">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.username.label(class="form-control-label") }}
+                {{ form.username(class="form-control") }}
+                {% for error in form.username.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.email.label(class="form-control-label") }}
+                {{ form.email(class="form-control") }}
+                {% for error in form.email.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.password.label(class="form-control-label") }}
+                {{ form.password(class="form-control") }}
+                {% for error in form.password.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.confirm_password.label(class="form-control-label") }}
+                {{ form.confirm_password(class="form-control") }}
+                {% for error in form.confirm_password.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.car_type.label(class="form-control-label") }}
+                {{ form.car_type(class="form-control") }}
+                {% for error in form.car_type.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </form>
+    </div>
+</body>
+</html>
