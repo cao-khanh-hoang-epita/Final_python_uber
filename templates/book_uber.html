@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Book Uber</title>
     <!-- Include Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" integrity="sha512-xodJVTUHUCVhK5qZg4uPl4IVb8g4AYwqJ17PBLH8HC2BZ2h2wnqfFCxFpg4y/j4tzqFy5u1t8z4i7xmBvBfXQg==" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" integrity="sha512-xodJVTUHUCVhK5qZg4uPl4IVb8g4AYwqJ17PBLH8HC2BZ2h2wnqfFCxFpg4y/j4tzqFy5u1t8z4i7xmBvBfXQg==" crossorigin="" />
     <!-- Include Leaflet Geocoder CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
 
@@ -26,6 +27,7 @@
         /* Add your custom styles here */
     </style>
 </head>
+
 <body>
     <h1>Book an Uber</h1>
     <form method="post">
@@ -34,32 +36,35 @@
         <input type="datetime-local" id="time" name="time" value="{{ form.time.default }}" required><br>
         <label for="car_type">Car Type:</label>
         <input type="text" id="car_type" name="car_type" value="{{ form.car_type.default }}" required><br>
-        
+
         <!-- Add the destination search input -->
         <label for="search-input">Destination:</label>
-        <input type="text" id="search-input" name="destination" placeholder="Search for your destination" required>
-        <button type="button" onclick="searchPlace()">Search</button>
+        <input type="text" id="search-input" name="destination" placeholder="destination" required>
         <br>
 
-        <!-- Add a div for displaying the calculated distance -->
-        <div>Distance: <span id="distance">0.00</span> km</div>
-        
+        <!-- Hidden input field to store destination coordinates -->
+        <input type="hidden" id="destination-latlng" name="destination_latlng" value="{{ request.args.get('destination') }}">
         <input type="submit" value="Book Ride">
     </form>
 
     <script>
-        // Initialize Leaflet map and other variables
-        // ...
+        // Function to extract URL parameters
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            var results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
 
         // Function to perform the search using the OpenCage Geocoding API
         async function searchPlaceWithAPI() {
             var searchText = document.getElementById('search-input').value;
-            if (searchText && userMarker) {
+            if (searchText) {
                 try {
                     // Use Axios to make an HTTP request to the OpenCage Geocoding API
                     const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
                         params: {
-                            key: 'YOUR_OPENCAGE_API_KEY',  // Replace with your actual API key
+                            key: 'YOUR_OPENCAGE_API_KEY', // Replace with your actual API key
                             q: searchText,
                             limit: 1,
                             no_annotations: 1
@@ -71,6 +76,9 @@
                         response.data.results[0].geometry.lat,
                         response.data.results[0].geometry.lng
                     ];
+
+                    // Update the destination-latlng hidden field value
+                    document.getElementById('destination-latlng').value = latlng.join(',');
 
                     // Calculate distance and update the distance display without moving the map or changing the marker
                     const initialLocation = L.latLng([userMarker.getLatLng().lat, userMarker.getLatLng().lng]);
@@ -87,6 +95,20 @@
             // Call the searchPlaceWithAPI function
             searchPlaceWithAPI();
         }
+
+        // Extract destination from URL
+        var destinationParam = getUrlParameter('destination');
+        if (destinationParam) {
+            // Split the coordinates and update the hidden field value
+            var destinationLatLng = destinationParam.split(',');
+            document.getElementById('destination-latlng').value = destinationParam;
+
+            // Update the distance display if needed
+            // ...
+
+            // You can use destinationLatLng[0] and destinationLatLng[1] as latitude and longitude
+        }
     </script>
 </body>
+
 </html>

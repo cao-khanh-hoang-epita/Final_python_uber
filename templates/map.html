@@ -164,17 +164,23 @@
     }
 
     function openUberForm() {
-            var time = new Date().toISOString().slice(0, 16); // Get current time in ISO format
-            var carType = prompt("Enter car type (big or small):");
+    var time = new Date().toISOString().slice(0, 16); // Get current time in ISO format
+    var carType = prompt("Enter car type (big or small):");
 
-            if (carType) {
-                // Open the booking form with default time and car type
-                var formUrl = "{{ url_for('book_uber') }}?time=" + time + "&car_type=" + carType;
-                window.location.href = formUrl;
-            } else {
-                alert("Please enter a valid car type.");
-            }
-        }
+    if (carType) {
+        // Get the user's marker coordinates
+        var userLatLng = userMarker.getLatLng();
+        
+        // Construct the URL with destination and other parameters
+        var destination = userLatLng.lat + ',' + userLatLng.lng;
+        var formUrl = "{{ url_for('book_uber') }}?time=" + time + "&car_type=" + carType + "&destination=" + destination;
+        
+        // Redirect to the booking form URL
+        window.location.href = formUrl;
+    } else {
+        alert("Please enter a valid car type.");
+    }
+}
     </script>
 </body>
 </html>

@@ -2,55 +2,184 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver Map</title>
+    <title>Map Page for Driver</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
     <style>
-        /* Add your custom styles here */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        #map {
+            height: 100vh;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1; /* Lower z-index for the map to allow controls to overlay */
+        }
+
+        #content {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            color: #8B0000;
+        }
+
+        #header, #footer {
+            position: absolute;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            width: 100%;
+            text-align: center;
+        }
+
+        #footer {
+            bottom: 0;
+        }
+
+        .leaflet-control-geocoder {
+            z-index: 1000; /* Ensure the geocoder control is above the map */
+        }
+
+        .leaflet-control-zoom {
+            right: 10px;
+            top: 10px;
+        }
     </style>
 </head>
 <body>
     <div id="map"></div>
 
     <div id="content">
-        <h1>Driver Map</h1>
-        <p>Welcome, {{ current_user.username }}!</p>
-        <button onclick="openUberForm()">Book an Uber</button>
+        <h1>UBER</h1>
+        <p>Welcome to your map site , {{ current_user.username }}</p>
         <a href="{{ url_for('logout') }}">Logout</a>
-
-        <h2>Available Routes</h2>
-        <table border="1">
-            <tr>
-                <th>ID</th>
-                <th>User ID</th>
-                <th>Time</th>
-                <th>Car Type</th>
-                <th>Action</th>
-            </tr>
-            {% for route in available_routes %}
-            <tr>
-                <td>{{ route[0] }}</td>
-                <td>{{ route[1] }}</td>
-                <td>{{ route[3] }}</td>
-                <td>{{ route[4] }}</td>
-                <td>
-                    {% if route[5] == 0 %}
-                        <a href="{{ url_for('select_route', route_id=route[0]) }}">Select Route</a>
-                    {% else %}
-                        Accepted
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </table>
     </div>
 
-    <!-- Include Leaflet and other scripts -->
-    <!-- Add your Leaflet map initialization script here -->
+    <div id="footer">
+        <p>&copy; 2023 My Website</p>
+    </div>
+
+    <!-- Include Leaflet and Control.Geocoder scripts -->
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
 
     <script>
-        // Add your custom JavaScript here
+        // Initialize the map
+        var map = L.map('map').setView([0, 0], 2);
+
+        // Add a tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Initialize a variable to store the user's marker
+        var userMarker = null;
+
+        // Add the Geocoder control
+        var geocoder = L.Control.geocoder({
+            defaultMarkGeocode: false
+        })
+        .on('markgeocode', function (e) {
+            var latlng = e.geocode.center;
+
+            // Remove existing user marker
+            if (userMarker) {
+                map.removeLayer(userMarker);
+            }
+
+            // Add a new marker at the searched location with the same icon
+            userMarker = L.marker(latlng).addTo(map);
+            
+            // Set the view to the searched location
+            map.setView(latlng, map.getZoom());
+        })
+        .addTo(map);
+
+        function searchPlace() {
+  var searchText = document.getElementById('search-input').value;
+  if (searchText && userMarker) {
+    geocoder.geocode(searchText, function (results) {
+      if (results && results.length > 0) {
+        var latlng = results[0].center;
+
+        // Calculate distance and update the distance display without moving the map or changing the marker
+        var initialLocation = L.latLng([userMarker.getLatLng().lat, userMarker.getLatLng().lng]);
+        var distance = initialLocation.distanceTo(latlng) / 1000; // in kilometers
+        document.getElementById('distance').innerText = distance.toFixed(2);
+      }
+    });
+  }
+}
+
+        // Get the user's location and set the initial view
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var userLocation = [position.coords.latitude, position.coords.longitude];
+                // Add a marker for the user's location
+                userMarker = L.marker(userLocation).addTo(map);
+                map.setView(userLocation, 10);
+            });
+        }
+
+        // Move zoom controls to the right
+        map.zoomControl.setPosition('topright');
+
+        // Get the user's location and set the initial view
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            var userLocation = [position.coords.latitude, position.coords.longitude];
+
+            // Add a marker for the user's location
+            userMarker = L.marker(userLocation).addTo(map);
+            map.setView(userLocation, 10);
+
+            // Update the user's location in the database using AJAX
+            updateLocationToServer(userLocation);
+        });
+}
+
+    // Function to update the user's location to the server
+    function updateLocationToServer(location) {
+        // Use AJAX to send the location to the server
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/update_location", true);
+        xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                console.log("User location updated successfully");
+            }
+        };
+        
+        // Convert the location to JSON and send the request
+        xhr.send(JSON.stringify({ location: location }));
+    }
+
+    function openUberForm() {
+    var time = new Date().toISOString().slice(0, 16); // Get current time in ISO format
+    var carType = prompt("Enter car type (big or small):");
+
+    if (carType) {
+        // Get the user's marker coordinates
+        var userLatLng = userMarker.getLatLng();
+        
+        // Construct the URL with destination and other parameters
+        var destination = userLatLng.lat + ',' + userLatLng.lng;
+        var formUrl = "{{ url_for('book_uber') }}?time=" + time + "&car_type=" + carType + "&destination=" + destination;
+        
+        // Redirect to the booking form URL
+        window.location.href = formUrl;
+    } else {
+        alert("Please enter a valid car type.");
+    }
+}
     </script>
 </body>
 </html>
